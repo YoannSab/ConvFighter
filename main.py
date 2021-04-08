@@ -77,6 +77,8 @@ while running and game.P1.health != 0 and game.P2.health != 0:
                 if event.key == pg.K_KP1:
                     game.P2.punch(game.P1)
 
+
+
                 game.pressed[event.key] = True
 
         elif event.type == pg.KEYUP:

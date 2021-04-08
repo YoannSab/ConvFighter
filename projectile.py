@@ -22,5 +22,8 @@ class Projectile(pg.sprite.Sprite):
         if self.entered(player):
             player.set_attacked(self.damage)
 
+    def move_right(self):
+        self.rect.x += 2
 
-#heheheh
+    def move_left(self):
+        self.rect.x -= 2
