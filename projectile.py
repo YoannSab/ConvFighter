@@ -1,5 +1,6 @@
 import pygame as pg
 
+#Yoann est un connard
 
 class Projectile(pg.sprite.Sprite):
 
