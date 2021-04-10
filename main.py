@@ -39,25 +39,35 @@ while running and game.P1.health >=0 and game.P2.health >= 0:
     screen.blit(text_healthP1, (game.P1.rect.x + 30, game.P1.rect.y - 35))
     screen.blit(text_healthP2, (game.P2.rect.x + 35, game.P2.rect.y - 35))
 
+    #rect_hp = Rect()
+
     # Verifier les touches pressées
     # P1
     game.P1.try_jump()
-    if game.pressed.get(pg.K_d) and game.P1.rect.x < 1050 and not game.P1.distance_cac(game.P2):
+    if game.pressed.get(pg.K_d) and game.P1.rect.x < 1050 :#and not game.P1.distance_cac(game.P2):
         time.sleep(0.001)
         game.P1.move_right()
-    if game.pressed.get(pg.K_q) and game.P1.rect.x > -100 and not game.P1.distance_cac(game.P2):
+        if game.P1.jump:
+            game.P1.jump_direction = 'Right'
+    if game.pressed.get(pg.K_q) and game.P1.rect.x > -100 :#and not game.P1.distance_cac(game.P2):
         time.sleep(0.001)
         game.P1.move_left()
+        if game.P1.jump:
+            game.P1.jump_direction = 'Left'
 
     # P2
     #if not game.P2.distance_cac(game.P1):
-        game.P2.try_jump()
-    if game.pressed.get(pg.K_RIGHT) and game.P2.rect.x < 1050 and not game.P2.distance_cac(game.P1):
+    game.P2.try_jump()
+    if game.pressed.get(pg.K_RIGHT) and game.P2.rect.x < 1050: #and not game.P2.distance_cac(game.P1):
         time.sleep(0.001)
         game.P2.move_right()
-    if game.pressed.get(pg.K_LEFT) and game.P2.rect.x > -100 and not game.P2.distance_cac(game.P1):
+        if game.P2.jump:
+            game.P2.jump_direction = 'Right'
+    if game.pressed.get(pg.K_LEFT) and game.P2.rect.x > -100 :#and not game.P2.distance_cac(game.P1):
         time.sleep(0.001)
         game.P2.move_left()
+        if game.P2.jump:
+            game.P2.jump_direction = 'Left'
 
 
 

@@ -5,6 +5,7 @@ import time
 class Player(pg.sprite.Sprite):
 
     def __init__(self, number_play,name,max_health, velocity,image, attack, heal, projectile):
+        super().__init__()
         self.name = name
         self.number_play = number_play
         self.health = max_health
@@ -22,8 +23,9 @@ class Player(pg.sprite.Sprite):
             self.last_direction = 'Right'   #met en mémoire la dernière direction
         if self.number_play ==2:
             self.last_direction = 'Left'
-        self.jump= False #est ce que le joueur veut sauter
+        self.jump = False #est ce que le joueur veut sauter
         self.reach_top = False #est ce que le joueur a atteint en haut
+        self.jump_direction = None
 
     def pos_start(self, number_play):
         if number_play == 1:
@@ -33,17 +35,17 @@ class Player(pg.sprite.Sprite):
 
     def move_right(self):
         self.rect.x += self.velocity
-        self.last_direction ='Right'
+        self.last_direction = 'Right'
 
     def move_left(self):
         self.rect.x -= self.velocity
         self.last_direction = 'Left'
 
     def move_up(self):
-        self.rect.y -= self.velocity
+        self.rect.y -= (self.velocity+2)
 
     def move_down(self):
-        self.rect.y += self.velocity
+        self.rect.y += (self.velocity+2)
 
     def distance_cac(self, other_player):
         if abs(other_player.rect.x - self.rect.x) < 100 and abs(other_player.rect.y - self.rect.y) < 60:
@@ -66,15 +68,30 @@ class Player(pg.sprite.Sprite):
 
     def try_jump(self): #essaie tout le temps le saut mais le fait ssi jump est true
         if self.jump:
-            if self.rect.y>200 and not self.reach_top: #s'il n'a pas atteint deja atteint le top et quil est en dessous du max, on fait monter
-                self.move_up()
+            if self.rect.y>300 and not self.reach_top: #s'il n'a pas atteint deja atteint le top et quil est en dessous du max, on fait monter
+                if self.jump_direction ==None:
+                    self.move_up()
+                if self.jump_direction== 'Right':
+                    self.move_up()
+                    self.move_right()
+                if self.jump_direction== 'Left':
+                    self.move_up()
+                    self.move_left()
             else:
-                self.move_down()  #sinon, on faut descendre et on dit quil a deja atteint le top
-                self.reach_top =True
-                if not self.is_up(): #s'il est de nouveau a tard, jump devient false
-                    self.jump= False
+                self.reach_top = True
+                if self.jump_direction==None:
+                    self.move_down()  #sinon, on faut descendre et on dit quil a deja atteint le top
+                if self.jump_direction == 'Right':
+                    self.move_down()
+                    self.move_right()
+                if self.jump_direction =='Left':
+                    self.move_down()
+                    self.move_left()
+                if not self.is_up(): #s'il est de nouveau a terre, jump devient false
+                    self.jump = False
 
     def init_jump(self):
-        self.reach_top =False
+        self.reach_top = False
+        self.jump_direction = None
         self.jump = True
 
