@@ -10,7 +10,7 @@ screen = pg.display.set_mode((1080, 720))
 
 # Background
 background = pg.image.load('assets/game_bg.jpg')
-
+background=pg.transform.scale(background, (1080, 720))
 # Charger Jeu
 game = Game()
 
@@ -24,7 +24,7 @@ up = True
 while running and game.P1.health >=0 and game.P2.health >= 0:
 
     # Appliquer background
-    screen.blit(background, (-400, -200))
+    screen.blit(background, (0, 0))
 
     # Appliquer image P1 et P2
     screen.blit(game.P1.image, game.P1.rect)
@@ -33,13 +33,27 @@ while running and game.P1.health >=0 and game.P2.health >= 0:
 
 
     # Affichage des points de vie
-    police_health = pg.font.SysFont("Arial", 40)  # Définition police et taille
-    text_healthP1 = police_health.render(str(game.P1.health), 1, (255, 0, 0))
-    text_healthP2 = police_health.render(str(game.P2.health), 1, (255, 0, 0))
-    screen.blit(text_healthP1, (game.P1.rect.x + 30, game.P1.rect.y - 35))
-    screen.blit(text_healthP2, (game.P2.rect.x + 35, game.P2.rect.y - 35))
+    #police_health = pg.font.SysFont("Arial", 40)  # Définition police et taille
+    #text_healthP1 = police_health.render(str(game.P1.health), 1, (255, 0, 0))
+    #text_healthP2 = police_health.render(str(game.P2.health), 1, (255, 0, 0))
+    #screen.blit(text_healthP1, (game.P1.rect.x + 30, game.P1.rect.y - 70))
+    #screen.blit(text_healthP2, (game.P2.rect.x + 35, game.P2.rect.y - 70))
 
-    #rect_hp = Rect()
+    #affichage barre d'hp P1
+    bar_hpP1 = pg.Surface((game.P1.rect.width,10))
+    rect_hpP1 = pg.Rect((3,2),(round((game.P1.health/game.P1.max_health)*(game.P1.rect.width-6)),5))
+    bar_hpP1.fill(pg.Color(0,69,11))
+    bar_hpP1.fill(pg.Color(3,233,42), rect_hpP1)
+    screen.blit(bar_hpP1,(game.P1.rect.x, game.P1.rect.y-15))
+
+    #affichage barre d'hp P2
+    bar_hpP2 = pg.Surface((game.P2.rect.width,10))
+    rect_hpP2 = pg.Rect((3,2),(round((game.P2.health/game.P2.max_health)*(game.P2.rect.width-6)),5))
+    bar_hpP2.fill(pg.Color(0, 69, 11))
+    bar_hpP2.fill(pg.Color(3,233,42), rect_hpP2)
+    screen.blit(bar_hpP2,(game.P2.rect.x, game.P2.rect.y -15))
+
+
 
     # Verifier les touches pressées
     # P1
@@ -123,8 +137,7 @@ while running and game.P1.health >=0 and game.P2.health >= 0:
                 if event.key == pg.K_SPACE:
                     if not game.P1.is_up():
                         game.P1.init_jump()
-
-                if event.key == pg.K_KP_ENTER:
+                if event.key == pg.K_UP:
                     if not game.P2.is_up():
                         game.P2.init_jump()
 
