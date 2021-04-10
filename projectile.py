@@ -1,30 +1,52 @@
 import pygame as pg
+import time
 
-#Yoann est un connard
 
 class Projectile(pg.sprite.Sprite):
 
     def __init__(self, name, damage, image):
         self.name = name
         self.damage = damage
-        self.image = pg.image.load(image)
-        self.image = pg.transform.scale(self.image, (140, 140))
+        self.image_string = image
+        self.image = pg.image.load(self.image_string)
+        self.image = pg.transform.scale(self.image, (70, 30))
         self.rect = self.image.get_rect()
-        self.rect.y = 520
+        self.shot = False
+        self.direction = None
 
     # test si un projectile entre dans un joueur
-    def entered(self, player):
-        if player.rect.x - 70 < self.rect.x < player.rect.x + 70:
+
+    def touched(self, to_player):
+        if to_player.rect.x - 70 < self.rect.x < to_player.rect.x + 70 and to_player.rect.y-70<self.rect.y<to_player.rect.y+70:
             return True
         else:
             return False
 
-    def proj_damage(self, player):
-        if self.entered(player):
-            player.set_attacked(self.damage)
+    def try_damage(self, to_player):
+        if self.touched(to_player):
+            to_player.set_attacked(self.damage)
+            self.shot = False
 
     def move_right(self):
         self.rect.x += 2
 
     def move_left(self):
         self.rect.x -= 2
+
+    def coord_update(self):
+        if self.rect.x <= 100 or self.rect.x >= 1050:
+            self.shot = False
+        if self.shot:
+            if self.direction == 'Right':
+                self.move_right()
+            else:
+                self.move_left()
+
+    def init_shoot(self, from_player):
+        self.rect.x = from_player.rect.x
+        self.rect.y = from_player.rect.y+50
+        self.direction = from_player.last_direction
+        if self.direction == 'Left':
+            self.image = pg.transform.flip(self.image, True, False)
+        self.shot = True
+
