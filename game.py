@@ -1,6 +1,7 @@
 import pygame as pg
 from player import Player
 from projectile import Projectile
+import time
 
 
 # Création de la classe Game
@@ -8,18 +9,139 @@ class Game:
 
     def __init__(self):
 
-        self.proj1 = Projectile('balle de fusil',10,'assets/bullet.png')
-        self.proj2 = Projectile('balle de fusil2', 10, 'assets/bullet2.png')
-        self.P1 = Player(1,'Marc', 150, 1, 'assets/004-evil.png', 10, 5, self.proj1)
-        self.P1.pos_start(1)
-        self.P2 = Player(2, 'Yoann', 110, 1, 'assets/002-angel.png', 7,2, self.proj2)
-        self.P2.pos_start(2)
+        self.proj1 = Projectile('balle de fusil', 10, 'assets/fire_ball.png')
+        self.proj2 = Projectile('balle de fusil2', 10, 'assets/arrow.png')
+        self.marc = Player('Marc', 150, 1, 'assets/004-evil.png', 10, 5, self.proj1)
+        self.yoann = Player('Yoann', 110, 1, 'assets/002-angel.png', 7, 2, self.proj2)
+        self.tristan = Player('Tristan', 160, 1, 'assets/001-sleeping.png', 18, 6, self.proj1)
+        self.arthur = Player('Arthur', 100, 1, 'assets/006-centaur.png', 8, 6, self.proj1)
+        self.nathan = Player('Nathan', 120, 1, 'assets/003-bandit.png', 10, 6, self.proj2)
+        self.pierre = Player('Pierre', 80, 1, 'assets/005-nymph butterfly.png', 6, 40, self.proj2)
+        self.list_player = [self.marc, self.yoann, self.tristan, self.arthur, self.nathan, self.pierre]
+        self.P1 = None
+        self.P2 = None
         self.pressed = {}
         self.projs1 = []
         self.projs2 = []
+        self.is_playing = False
 
     def create_proj(self, player):
-        if player.number_play==1:
-            self.projs1.append(Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string))
+        if player.number_play == 1:
+            self.projs1.append(
+                Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string))
         else:
-            self.projs2.append(Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string))
+            self.projs2.append(
+                Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string))
+
+    def choose_player(self, player):
+        if self.P1 is None:
+            self.P1 = player
+            self.P1.number_play = 1
+        else:
+            self.P2 = player
+            self.P2.number_play = 2
+        self.launch_game()
+
+    def launch_game(self):
+        if self.P1 is not None and self.P2 is not None:
+            self.P1.last_direction = 'Right'
+            self.P1.pos_start()
+            self.P2.last_direction = 'Left'
+            self.P2.pos_start()
+            self.is_playing = True
+
+    def choice_window(self, screen, police):
+        self.marc.rect.x = 300
+        self.marc.rect.y = 100
+        screen.blit(self.marc.image, self.marc.rect)
+        text_nom_marc = police.render(str(self.marc.name), 1, (0, 187, 254))
+        screen.blit(text_nom_marc, (self.marc.rect.x + 30, self.marc.rect.y - 40))
+
+        self.yoann.rect.x = 500
+        self.yoann.rect.y = 100
+        screen.blit(self.yoann.image, self.yoann.rect)
+        text_nom_yoann = police.render(str(self.yoann.name), 1, (0, 187, 254))
+        screen.blit(text_nom_yoann, (self.yoann.rect.x + 30, self.yoann.rect.y - 40))
+
+        self.tristan.rect.x = 700
+        self.tristan.rect.y = 100
+        screen.blit(self.tristan.image, self.tristan.rect)
+        text_nom_tristan = police.render(str(self.tristan.name), 1, (0, 187, 254))
+        screen.blit(text_nom_tristan, (self.tristan.rect.x + 30, self.tristan.rect.y - 40))
+
+        self.arthur.rect.x = 300
+        self.arthur.rect.y = 350
+        screen.blit(self.arthur.image, self.arthur.rect)
+        text_nom_arthur = police.render(str(self.arthur.name), 1, (0, 187, 254))
+        screen.blit(text_nom_arthur, (self.arthur.rect.x + 30, self.arthur.rect.y - 40))
+
+        self.nathan.rect.x = 500
+        self.nathan.rect.y = 350
+        screen.blit(self.nathan.image, self.nathan.rect)
+        text_nom_nathan = police.render(str(self.nathan.name), 1, (0, 187, 254))
+        screen.blit(text_nom_nathan, (self.nathan.rect.x + 30, self.nathan.rect.y - 40))
+
+        self.pierre.rect.x = 700
+        self.pierre.rect.y = 350
+        screen.blit(self.pierre.image, self.pierre.rect)
+        text_nom_pierre = police.render(str(self.pierre.name), 1, (0, 187, 254))
+        screen.blit(text_nom_pierre, (self.pierre.rect.x + 30, self.pierre.rect.y - 40))
+
+    def window_update(self, screen):
+        # Appliquer image P1 et P2
+        screen.blit(self.P1.image, self.P1.rect)
+        screen.blit(self.P2.image, self.P2.rect)
+
+        # affichage barre d'hp P1
+        bar_hpP1 = pg.Surface((self.P1.rect.width, 10))
+        rect_hpP1 = pg.Rect((3, 2), (round((self.P1.health / self.P1.max_health) * (self.P1.rect.width - 6)), 5))
+        bar_hpP1.fill(pg.Color(0, 69, 11))
+        bar_hpP1.fill(pg.Color(3, 233, 42), rect_hpP1)
+        screen.blit(bar_hpP1, (self.P1.rect.x, self.P1.rect.y - 15))
+
+        # affichage barre d'hp P2
+        bar_hpP2 = pg.Surface((self.P2.rect.width, 10))
+        rect_hpP2 = pg.Rect((3, 2), (round((self.P2.health / self.P2.max_health) * (self.P2.rect.width - 6)), 5))
+        bar_hpP2.fill(pg.Color(0, 69, 11))
+        bar_hpP2.fill(pg.Color(3, 233, 42), rect_hpP2)
+        screen.blit(bar_hpP2, (self.P2.rect.x, self.P2.rect.y - 15))
+
+        # Verifier les touches pressées
+        # P1
+        self.P1.try_jump()
+        if self.pressed.get(pg.K_d) and self.P1.rect.x < 1050:  # and not self.P1.distance_cac(self.P2):
+            time.sleep(0.001)
+            self.P1.move_right()
+            if self.P1.jump:
+                self.P1.jump_direction = 'Right'
+        if self.pressed.get(pg.K_q) and self.P1.rect.x > -100:  # and not self.P1.distance_cac(self.P2):
+            time.sleep(0.001)
+            self.P1.move_left()
+            if self.P1.jump:
+                self.P1.jump_direction = 'Left'
+
+        # P2
+        self.P2.try_jump()
+        if self.pressed.get(pg.K_RIGHT) and self.P2.rect.x < 1050:
+            time.sleep(0.001)
+            self.P2.move_right()
+            if self.P2.jump:
+                self.P2.jump_direction = 'Right'
+        if self.pressed.get(pg.K_LEFT) and self.P2.rect.x > -100:
+            time.sleep(0.001)
+            self.P2.move_left()
+            if self.P2.jump:
+                self.P2.jump_direction = 'Left'
+
+        # Appliquer les projectiles / séparation des projectiles de P1 et P2
+        for proj in self.projs1:
+            if proj.shot:
+                screen.blit(proj.image, proj.rect)
+                proj.coord_update()
+                proj.try_damage(self.P2)
+
+        for proj in self.projs2:
+            if proj.shot:
+                screen.blit(proj.image, proj.rect)
+                proj.coord_update()
+                proj.try_damage(self.P1)
