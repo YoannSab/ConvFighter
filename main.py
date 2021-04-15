@@ -28,8 +28,12 @@ while running:
     screen.blit(background, (0, 0))
     if game.is_playing:
         game.window_update(screen)
+    elif game.game_over:
+        game.end_window(screen)
     else:
         game.choice_window(screen, police)
+    game.try_game_over()
+
 
     # Mise à jour de la fenêtre
     pg.display.flip()
@@ -74,7 +78,7 @@ while running:
                         game.P2.init_jump()
 
                 if event.key == pg.K_u:
-                    if game.P1.health< game.P1.max_health-game.P1.heal:
+                    if game.P1.health < game.P1.max_health - game.P1.heal:
                         game.P1.health += game.P1.heal
                     else:
                         game.P1.health = game.P1.max_health
@@ -91,6 +95,8 @@ while running:
             for player in game.list_player:
                 if player.rect.collidepoint(event.pos):
                     game.choose_player(player)
+            if game.img_replay_rect.collidepoint(event.pos):
+                game.new_game()
 
         elif event.type == pg.KEYUP:
             game.pressed[event.key] = False

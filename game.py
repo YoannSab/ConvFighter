@@ -24,6 +24,18 @@ class Game:
         self.projs1 = []
         self.projs2 = []
         self.is_playing = False
+        self.img_go = pg.image.load("assets/game_over.png")
+        self.img_go = pg.transform.scale(self.img_go, (300, 200))
+        self.img_go_rect = self.img_go.get_rect()
+        self.img_go_rect.x = 400
+        self.img_go_rect.y = 100
+        self.img_replay = pg.image.load("assets/replay.png")
+        self.img_replay = pg.transform.scale(self.img_replay, (300, 80))
+        self.img_replay_rect = self.img_replay.get_rect()
+        self.img_replay_rect.x = 400
+        self.img_replay_rect.y = 600
+        self.game_over = False
+        self.winner = None
 
     def create_proj(self, player):
         if player.number_play == 1:
@@ -49,6 +61,32 @@ class Game:
             self.P2.last_direction = 'Left'
             self.P2.pos_start()
             self.is_playing = True
+
+    def try_game_over(self):
+        if self.is_playing:
+            if self.P1.health <= 0 or self.P2.health <= 0:
+                self.game_over = True
+                self.is_playing = False
+                if self.P1.health <= 0:
+                    self.winner = self.P2
+                else:
+                    self.winner = self.P1
+
+    def new_game(self):
+        for player in self.list_player:
+            player.health = player.max_health
+        self.P1 = None
+        self.P2 = None
+        self.winner = None
+        self.projs1 = []
+        self.projs2 = []
+        self.game_over = False
+
+    def end_window(self, screen):
+        screen.blit(self.img_go, self.img_go_rect)
+        screen.blit(self.img_replay, self.img_replay_rect)
+        text_nom_winner = pg.font.SysFont("Calibri", 60).render("Le gagnant est "+self.winner.name+", Bravo !", 1, (0, 187, 254))
+        screen.blit(text_nom_winner, (200, 400))
 
     def choice_window(self, screen, police):
         self.marc.rect.x = 300
@@ -145,3 +183,5 @@ class Game:
                 screen.blit(proj.image, proj.rect)
                 proj.coord_update()
                 proj.try_damage(self.P1)
+
+
