@@ -2,6 +2,8 @@ import pygame as pg
 from player import Player
 from projectile import Projectile
 import time
+from threading import Timer
+from timer import My_Timer
 
 
 # Création de la classe Game
@@ -9,14 +11,14 @@ class Game:
 
     def __init__(self):
 
-        self.proj1 = Projectile('balle de fusil', 10, 'assets/fire_ball.png')
-        self.proj2 = Projectile('balle de fusil2', 10, 'assets/arrow.png')
-        self.marc = Player('Marc', 150, 1, 'assets/004-evil.png', 10, 5, self.proj1)
-        self.yoann = Player('Yoann', 110, 1, 'assets/002-angel.png', 7, 2, self.proj2)
-        self.tristan = Player('Tristan', 160, 1, 'assets/001-sleeping.png', 18, 6, self.proj1)
-        self.arthur = Player('Arthur', 100, 1, 'assets/006-centaur.png', 8, 6, self.proj1)
-        self.nathan = Player('Nathan', 120, 1, 'assets/003-bandit.png', 10, 6, self.proj2)
-        self.pierre = Player('Pierre', 80, 1, 'assets/005-nymph butterfly.png', 6, 40, self.proj2)
+        self.proj1 = Projectile('balle de fusil', 10, 'assets/fire_ball.png', 30)
+        self.proj2 = Projectile('balle de fusil2', 10, 'assets/arrow.png',30)
+        self.marc = Player('Marc', 150, 1, 'assets/004-evil.png','assets/marc.png', 10, 5, self.proj1,100, 10)
+        self.yoann = Player('Yoann', 110, 1, 'assets/002-angel.png','assets/yoann.png', 7, 2, self.proj2,100, 10)
+        self.tristan = Player('Tristan', 160, 1, 'assets/001-sleeping.png','assets/tristan.png', 18, 6, self.proj1,100,10)
+        self.arthur = Player('Arthur', 100, 1, 'assets/006-centaur.png','assets/arthur.png',8, 6, self.proj1,100,10)
+        self.nathan = Player('Nathan', 120, 1, 'assets/003-bandit.png','assets/nathan.png', 10, 6, self.proj2,100,10)
+        self.pierre = Player('Pierre', 80, 1, 'assets/005-nymph butterfly.png','assets/pierre.png', 6, 40, self.proj2,100,10)
         self.list_player = [self.marc, self.yoann, self.tristan, self.arthur, self.nathan, self.pierre]
         self.P1 = None
         self.P2 = None
@@ -36,14 +38,16 @@ class Game:
         self.img_replay_rect.y = 600
         self.game_over = False
         self.winner = None
+        # regen du mana toutes les 1 secondes
+        self.timer = My_Timer(1.0, self.mana_regen_in_game)
 
     def create_proj(self, player):
         if player.number_play == 1:
             self.projs1.append(
-                Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string))
+                Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string,player.projectile.mana_cost))
         else:
             self.projs2.append(
-                Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string))
+                Projectile(player.projectile.name, player.projectile.damage, player.projectile.image_string, player.projectile.mana_cost))
 
     def choose_player(self, player):
         if self.P1 is None:
@@ -61,12 +65,14 @@ class Game:
             self.P2.last_direction = 'Left'
             self.P2.pos_start()
             self.is_playing = True
+            self.timer.start()
 
     def try_game_over(self):
         if self.is_playing:
             if self.P1.health <= 0 or self.P2.health <= 0:
                 self.game_over = True
                 self.is_playing = False
+                self.timer.stop()
                 if self.P1.health <= 0:
                     self.winner = self.P2
                 else:
@@ -75,6 +81,7 @@ class Game:
     def new_game(self):
         for player in self.list_player:
             player.health = player.max_health
+            player.mana = player.mana_max
         self.P1 = None
         self.P2 = None
         self.winner = None
@@ -89,41 +96,41 @@ class Game:
         screen.blit(text_nom_winner, (200, 400))
 
     def choice_window(self, screen, police):
-        self.marc.rect.x = 300
-        self.marc.rect.y = 100
-        screen.blit(self.marc.image, self.marc.rect)
+        self.marc.splashart_rect.x = 300
+        self.marc.splashart_rect.y = 100
+        screen.blit(self.marc.splashart, self.marc.splashart_rect)
         text_nom_marc = police.render(str(self.marc.name), 1, (0, 187, 254))
-        screen.blit(text_nom_marc, (self.marc.rect.x + 30, self.marc.rect.y - 40))
+        screen.blit(text_nom_marc, (self.marc.splashart_rect.x + 30, self.marc.splashart_rect.y - 40))
 
-        self.yoann.rect.x = 500
-        self.yoann.rect.y = 100
-        screen.blit(self.yoann.image, self.yoann.rect)
+        self.yoann.splashart_rect.x = 500
+        self.yoann.splashart_rect.y = 100
+        screen.blit(self.yoann.splashart, self.yoann.splashart_rect)
         text_nom_yoann = police.render(str(self.yoann.name), 1, (0, 187, 254))
-        screen.blit(text_nom_yoann, (self.yoann.rect.x + 30, self.yoann.rect.y - 40))
+        screen.blit(text_nom_yoann, (self.yoann.splashart_rect.x + 30, self.yoann.splashart_rect.y - 40))
 
-        self.tristan.rect.x = 700
-        self.tristan.rect.y = 100
-        screen.blit(self.tristan.image, self.tristan.rect)
+        self.tristan.splashart_rect.x = 700
+        self.tristan.splashart_rect.y = 100
+        screen.blit(self.tristan.splashart, self.tristan.splashart_rect)
         text_nom_tristan = police.render(str(self.tristan.name), 1, (0, 187, 254))
-        screen.blit(text_nom_tristan, (self.tristan.rect.x + 30, self.tristan.rect.y - 40))
+        screen.blit(text_nom_tristan, (self.tristan.splashart_rect.x + 30, self.tristan.splashart_rect.y - 40))
 
-        self.arthur.rect.x = 300
-        self.arthur.rect.y = 350
-        screen.blit(self.arthur.image, self.arthur.rect)
+        self.arthur.splashart_rect.x = 300
+        self.arthur.splashart_rect.y = 350
+        screen.blit(self.arthur.splashart, self.arthur.splashart_rect)
         text_nom_arthur = police.render(str(self.arthur.name), 1, (0, 187, 254))
-        screen.blit(text_nom_arthur, (self.arthur.rect.x + 30, self.arthur.rect.y - 40))
+        screen.blit(text_nom_arthur, (self.arthur.splashart_rect.x + 30, self.arthur.splashart_rect.y - 40))
 
-        self.nathan.rect.x = 500
-        self.nathan.rect.y = 350
-        screen.blit(self.nathan.image, self.nathan.rect)
+        self.nathan.splashart_rect.x = 500
+        self.nathan.splashart_rect.y = 350
+        screen.blit(self.nathan.splashart, self.nathan.splashart_rect)
         text_nom_nathan = police.render(str(self.nathan.name), 1, (0, 187, 254))
-        screen.blit(text_nom_nathan, (self.nathan.rect.x + 30, self.nathan.rect.y - 40))
+        screen.blit(text_nom_nathan, (self.nathan.splashart_rect.x + 30, self.nathan.splashart_rect.y - 40))
 
-        self.pierre.rect.x = 700
-        self.pierre.rect.y = 350
-        screen.blit(self.pierre.image, self.pierre.rect)
+        self.pierre.splashart_rect.x = 700
+        self.pierre.splashart_rect.y = 350
+        screen.blit(self.pierre.splashart, self.pierre.splashart_rect)
         text_nom_pierre = police.render(str(self.pierre.name), 1, (0, 187, 254))
-        screen.blit(text_nom_pierre, (self.pierre.rect.x + 30, self.pierre.rect.y - 40))
+        screen.blit(text_nom_pierre, (self.pierre.splashart_rect.x + 30, self.pierre.splashart_rect.y - 40))
 
     def window_update(self, screen):
         # Appliquer image P1 et P2
@@ -135,14 +142,28 @@ class Game:
         rect_hpP1 = pg.Rect((3, 2), (round((self.P1.health / self.P1.max_health) * (self.P1.rect.width - 6)), 5))
         bar_hpP1.fill(pg.Color(0, 69, 11))
         bar_hpP1.fill(pg.Color(3, 233, 42), rect_hpP1)
-        screen.blit(bar_hpP1, (self.P1.rect.x, self.P1.rect.y - 15))
+        screen.blit(bar_hpP1, (self.P1.rect.x, self.P1.rect.y - 30))
 
         # affichage barre d'hp P2
         bar_hpP2 = pg.Surface((self.P2.rect.width, 10))
         rect_hpP2 = pg.Rect((3, 2), (round((self.P2.health / self.P2.max_health) * (self.P2.rect.width - 6)), 5))
         bar_hpP2.fill(pg.Color(0, 69, 11))
         bar_hpP2.fill(pg.Color(3, 233, 42), rect_hpP2)
-        screen.blit(bar_hpP2, (self.P2.rect.x, self.P2.rect.y - 15))
+        screen.blit(bar_hpP2, (self.P2.rect.x, self.P2.rect.y - 30))
+
+        # affichage barre de mana P1
+        bar_manaP1 = pg.Surface((self.P1.rect.width, 10))
+        rect_manaP1 = pg.Rect((3, 2), (round((self.P1.mana / self.P1.mana_max) * (self.P1.rect.width - 6)), 5))
+        bar_manaP1.fill(pg.Color(0, 121, 254))
+        bar_manaP1.fill(pg.Color(0, 254, 204), rect_manaP1)
+        screen.blit(bar_manaP1, (self.P1.rect.x, self.P1.rect.y - 15))
+
+        # affichage barre de mana P2
+        bar_manaP2 = pg.Surface((self.P2.rect.width, 10))
+        rect_manaP2 = pg.Rect((3, 2), (round((self.P2.mana / self.P2.mana_max) * (self.P2.rect.width - 6)), 5))
+        bar_manaP2.fill(pg.Color(0, 121, 254))
+        bar_manaP2.fill(pg.Color(0, 254, 204), rect_manaP2)
+        screen.blit(bar_manaP2, (self.P2.rect.x, self.P2.rect.y - 15))
 
         # Verifier les touches pressées
         # P1
@@ -183,5 +204,11 @@ class Game:
                 screen.blit(proj.image, proj.rect)
                 proj.coord_update()
                 proj.try_damage(self.P1)
+
+    def mana_regen_in_game(self):
+        self.P1.regen_mana()
+        self.P2.regen_mana()
+
+
 
 

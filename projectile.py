@@ -4,20 +4,21 @@ import time
 
 class Projectile(pg.sprite.Sprite):
 
-    def __init__(self, name, damage, image):
+    def __init__(self, name, damage, image, mana_cost):
         self.name = name
         self.damage = damage
         self.image_string = image
         self.image = pg.image.load(self.image_string)
         self.image = pg.transform.scale(self.image, (70, 30))
         self.rect = self.image.get_rect()
+        self.mana_cost = mana_cost
         self.shot = False
         self.direction = None
 
     # test si un projectile entre dans un joueur
 
     def touched(self, to_player):
-        if to_player.rect.x - 70 < self.rect.x < to_player.rect.x + 70 and to_player.rect.y-70<self.rect.y<to_player.rect.y+70:
+        if self.rect.colliderect(to_player.rect):
             return True
         else:
             return False
@@ -43,6 +44,7 @@ class Projectile(pg.sprite.Sprite):
                 self.move_left()
 
     def init_shoot(self, from_player):
+        from_player.mana -= self.mana_cost
         self.rect.x = from_player.rect.x
         self.rect.y = from_player.rect.y+50
         self.direction = from_player.last_direction

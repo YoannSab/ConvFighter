@@ -5,7 +5,7 @@ import time
 # Création de la classe joueur
 class Player(pg.sprite.Sprite):
 
-    def __init__(self, name, max_health, velocity, image, attack, heal, projectile):
+    def __init__(self, name, max_health, velocity, image_string, splashart_string, attack, heal, projectile, mana_max, mana_regen):
         super().__init__()
         self.name = name
         self.health = max_health
@@ -13,10 +13,15 @@ class Player(pg.sprite.Sprite):
         self.velocity = velocity
         self.attack = attack
         self.heal = heal
+        self.mana = mana_max
+        self.mana_max = mana_max
+        self.mana_regen = mana_regen
         self.projectile = projectile
-        self.image_string = image
+        self.image_string = image_string
         self.image = pg.image.load(self.image_string)
-        self.image = pg.transform.scale(self.image, (140, 140))
+        self.image = pg.transform.scale(self.image, (70, 70))
+        self.splashart = pg.transform.scale(pg.image.load(splashart_string), (140, 140))
+        self.splashart_rect = self.splashart.get_rect()
         self.rect = self.image.get_rect()
         self.jump = False  # est ce que le joueur veut sauter
         self.reach_top = False  # est ce que le joueur a atteint en haut
@@ -40,13 +45,13 @@ class Player(pg.sprite.Sprite):
         self.last_direction = 'Left'
 
     def move_up(self):
-        self.rect.y -= (self.velocity+2)
+        self.rect.y -= (self.velocity + 2)
 
     def move_down(self):
-        self.rect.y += (self.velocity+2)
+        self.rect.y += (self.velocity + 2)
 
     def distance_cac(self, other_player):
-        if abs(other_player.rect.x - self.rect.x) < 100 and abs(other_player.rect.y - self.rect.y) < 60:
+        if self.rect.colliderect(other_player.rect):
             return True
         else:
             return False
@@ -54,12 +59,23 @@ class Player(pg.sprite.Sprite):
     def set_attacked(self, damage):
         self.health -= damage
 
-    def set_healed(self, heal):
-        self.health += heal
+    def get_healed(self):
+        self.mana -= 20
+        if self.health >= self.max_health - self.heal:
+            self.health = self.max_health
+        else:
+            self.health += self.heal
 
     def punch(self, other_player):
         if self.distance_cac(other_player):
             other_player.set_attacked(self.attack)
+            self.mana -= 5
+
+    def regen_mana(self):
+        if self.mana <= self.mana_max - self.mana_regen:
+            self.mana += self.mana_regen
+        else:
+            self.mana = self.mana_max
 
     def is_up(self):
         return self.rect.y != 520

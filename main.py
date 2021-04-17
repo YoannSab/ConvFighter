@@ -19,21 +19,19 @@ running = True
 # Affichage de la fin
 police = pg.font.SysFont("Bradley Hand ITC", 30)  # Définition police et taille
 police.set_bold(True)
-text_endP1 = police.render("Joueur 1 gagne ! ", 1, (255, 0, 0))
-text_endP2 = police.render("Joueur 2 gagne !", 1, (255, 0, 0))
 
 while running:
 
     # Appliquer background
     screen.blit(background, (0, 0))
     if game.is_playing:
+        # maj de la fenetre
         game.window_update(screen)
     elif game.game_over:
         game.end_window(screen)
     else:
         game.choice_window(screen, police)
     game.try_game_over()
-
 
     # Mise à jour de la fenêtre
     pg.display.flip()
@@ -43,31 +41,33 @@ while running:
         # Evenement fermeture de fenetre
         if event.type == pg.QUIT:
             running = False
+            game.timer.stop()
             pg.quit()
 
         # Quelle touche est pressée
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 running = False
+                game.timer.stop()
                 pg.quit()
             else:
                 if event.key == pg.K_j:
-                    game.P1.punch(game.P2)
+                    if game.P1.mana > 0:
+                        game.P1.punch(game.P2)
 
                 if event.key == pg.K_KP1:
-                    game.P2.punch(game.P1)
+                    if game.P2.mana > 0:
+                        game.P2.punch(game.P1)
 
                 if event.key == pg.K_SPACE:
-                    if len(game.projs1) < 10:  # quota maximum de 10 projectiles à lancer
+                    if game.P1.mana > game.P1.projectile.mana_cost:
                         game.create_proj(game.P1)
-                        print("J1 : il vous reste", 10 - len(game.projs1), " projectiles à lancer")
                         game.projs1[len(game.projs1) - 1].init_shoot(
                             game.P1)  # on initialise le shoot du dernier élément
 
                 if event.key == pg.K_KP0:
-                    if len(game.projs2) < 12:  # quota maximum de 12 projectiles à lancer
+                    if game.P2.mana > game.P2.projectile.mana_cost:
                         game.create_proj(game.P2)
-                        print("J2 : il vous reste", 12 - len(game.projs2), "projectiles à lancer")
                         game.projs2[len(game.projs2) - 1].init_shoot(game.P2)
 
                 if event.key == pg.K_z:
@@ -78,22 +78,18 @@ while running:
                         game.P2.init_jump()
 
                 if event.key == pg.K_u:
-                    if game.P1.health < game.P1.max_health - game.P1.heal:
-                        game.P1.health += game.P1.heal
-                    else:
-                        game.P1.health = game.P1.max_health
+                    if game.P1.mana > 0:
+                        game.P1.get_healed()
 
                 if event.key == pg.K_KP2:
-                    if game.P2.health < game.P2.max_health - game.P2.heal:
-                        game.P2.health += game.P2.heal
-                    else:
-                        game.P2.health = game.P2.max_health
+                    if game.P2.mana > 0:
+                        game.P2.get_healed()
 
                 game.pressed[event.key] = True
 
         elif event.type == pg.MOUSEBUTTONDOWN:
             for player in game.list_player:
-                if player.rect.collidepoint(event.pos):
+                if player.splashart_rect.collidepoint(event.pos):
                     game.choose_player(player)
             if game.img_replay_rect.collidepoint(event.pos):
                 game.new_game()
