@@ -5,7 +5,8 @@ import time
 # Création de la classe joueur
 class Player(pg.sprite.Sprite):
 
-    def __init__(self, name, max_health, velocity, image_string, splashart_string, attack, heal, projectile, mana_max, mana_regen):
+    def __init__(self, name, max_health, velocity, image_string, splashart_string, attack, heal, projectile, mana_max,
+                 mana_regen):
         super().__init__()
         self.name = name
         self.health = max_health
@@ -28,13 +29,17 @@ class Player(pg.sprite.Sprite):
         self.jump_direction = None
         self.number_play = None
         self.last_direction = None
+        self.last_direction_up = None
+        self.blocked_direction = None
+        self.set_initial_height = False
+        self.initial_height = self.rect.y
 
     def pos_start(self):
         if self.number_play == 1:
             self.rect.x = 200
         elif self.number_play == 2:
             self.rect.x = 800
-        self.rect.y = 520
+        self.rect.y = 535
 
     def move_right(self):
         self.rect.x += self.velocity
@@ -49,6 +54,16 @@ class Player(pg.sprite.Sprite):
 
     def move_down(self):
         self.rect.y += (self.velocity + 2)
+
+    def try_block(self, other_player):
+        if self.distance_cac(other_player):
+            pass
+            #if self.is_up():
+             #   self.blocked_direction = self.last_direction_up
+            #else:
+             #   self.blocked_direction = self.last_direction
+        else:
+            self.blocked_direction = None
 
     def distance_cac(self, other_player):
         if self.rect.colliderect(other_player.rect):
@@ -69,7 +84,6 @@ class Player(pg.sprite.Sprite):
     def punch(self, other_player):
         if self.distance_cac(other_player):
             other_player.set_attacked(self.attack)
-            self.mana -= 5
 
     def regen_mana(self):
         if self.mana <= self.mana_max - self.mana_regen:
@@ -78,11 +92,22 @@ class Player(pg.sprite.Sprite):
             self.mana = self.mana_max
 
     def is_up(self):
-        return self.rect.y != 520
+        return self.rect.y != self.initial_height
+
+    def try_collide(self):
+        pass
 
     def try_jump(self):  # essaie tout le temps le saut mais le fait ssi jump est true
+        # si on a deja initialisé la hauteur initiale, on le refait pas
+        if not self.set_initial_height:
+            if self.blocked_direction is None:
+                self.initial_height = self.rect.y
+            else:
+                self.initial_height = 535
+            self.set_initial_height = True
         if self.jump:
-            if self.rect.y > 300 and not self.reach_top:  # s'il n'a pas atteint deja atteint le top et quil est en dessous du max, on fait monter
+            if self.rect.y > self.initial_height - 200 and not self.reach_top:  # s'il n'a pas atteint deja atteint le top et quil est en dessous du max, on fait monter
+                self.last_direction_up = 'Up'
                 if self.jump_direction is None:
                     self.move_up()
                 if self.jump_direction == 'Right':
@@ -91,10 +116,13 @@ class Player(pg.sprite.Sprite):
                 if self.jump_direction == 'Left':
                     self.move_up()
                     self.move_left()
-            else:
+                if self.blocked_direction == 'Up':
+                    self.reach_top = True
+            elif self.blocked_direction != 'Down':  # sinon, on faut descendre et on dit quil a deja atteint le top
+                self.last_direction_up = 'Down'
                 self.reach_top = True
                 if self.jump_direction is None:
-                    self.move_down()  # sinon, on faut descendre et on dit quil a deja atteint le top
+                    self.move_down()
                 if self.jump_direction == 'Right':
                     self.move_down()
                     self.move_right()
@@ -102,9 +130,14 @@ class Player(pg.sprite.Sprite):
                     self.move_down()
                     self.move_left()
                 if not self.is_up():  # s'il est de nouveau a terre, jump devient false
+                    self.last_direction_up = 'Ground'
                     self.jump = False
+            else:
+                self.jump = False
+                self.initial_height = self.rect.y
 
     def init_jump(self):
         self.reach_top = False
         self.jump_direction = None
+        self.set_initial_height = False
         self.jump = True

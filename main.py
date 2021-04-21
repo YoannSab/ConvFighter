@@ -8,7 +8,7 @@ pg.display.set_caption("Cav' Fighter")
 screen = pg.display.set_mode((1080, 720))
 
 # Background
-background = pg.image.load('assets/game_bg.jpg')
+background = pg.image.load('assets/game_bg3.jpg')
 background = pg.transform.scale(background, (1080, 720))
 # Charger Jeu
 game = Game()
@@ -90,7 +90,10 @@ while running:
         elif event.type == pg.MOUSEBUTTONDOWN:
             for player in game.list_player:
                 if player.splashart_rect.collidepoint(event.pos):
-                    game.choose_player(player)
+                    if player != game.P1:
+                        game.choose_player(player)
+                    else:
+                        print("deja pris")
             if game.img_replay_rect.collidepoint(event.pos):
                 game.new_game()
 
