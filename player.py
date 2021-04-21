@@ -3,6 +3,8 @@ import time
 
 
 # Création de la classe joueur
+
+
 class Player(pg.sprite.Sprite):
 
     def __init__(self, name, max_health, velocity, image_string, splashart_string, attack, heal, projectile, mana_max,
@@ -33,6 +35,9 @@ class Player(pg.sprite.Sprite):
         self.blocked_direction = None
         self.set_initial_height = False
         self.initial_height = self.rect.y
+        self.fall = False
+        self.fall_direction = None
+        self.traverse_plateforme = False
 
     def pos_start(self):
         if self.number_play == 1:
@@ -50,18 +55,20 @@ class Player(pg.sprite.Sprite):
         self.last_direction = 'Left'
 
     def move_up(self):
-        self.rect.y -= (self.velocity + 2)
+        self.last_direction_up = 'Up'
+        self.rect.y -= (self.velocity + 1)
 
     def move_down(self):
-        self.rect.y += (self.velocity + 2)
+        self.last_direction_up = 'Down'
+        self.rect.y += (self.velocity + 1)
 
     def try_block(self, other_player):
         if self.distance_cac(other_player):
             pass
-            #if self.is_up():
-             #   self.blocked_direction = self.last_direction_up
-            #else:
-             #   self.blocked_direction = self.last_direction
+            # if self.is_up():
+            #   self.blocked_direction = self.last_direction_up
+            # else:
+            #   self.blocked_direction = self.last_direction
         else:
             self.blocked_direction = None
 
@@ -91,23 +98,62 @@ class Player(pg.sprite.Sprite):
         else:
             self.mana = self.mana_max
 
-    def is_up(self):
-        return self.rect.y != self.initial_height
+    def is_up(self, list_plateforme):
+        if self.rect.y == 535:
+            res = False
+        else:
+            for plateforme in list_plateforme:
+                if self.is_on_plateforme(plateforme):
+                    print("reee")
+                    res = False
+                    break
+                else:
+                    res = True
+        return res
 
-    def try_collide(self):
-        pass
+    def is_on_plateforme(self, plateforme):
+        if plateforme.rect.x-20 < self.rect.x < plateforme.rect.x + plateforme.image.get_width()-22 and (
+                self.rect.y + self.image.get_height() == plateforme.rect.y or self.rect.y + self.image.get_height() == plateforme.rect.y + 1) and self.last_direction_up == 'Down':
+            return True
+        else:
+            return False
+
+    def try_fall(self, list_plateforme):
+        if self.rect.y != 535:
+            if not self.jump:
+                self.fall = True
+                for plateforme in list_plateforme:
+                    if self.is_on_plateforme(plateforme):
+                        self.fall = False
+                        break
+                if self.fall or self.traverse_plateforme:
+                    if self.fall_direction is None:
+                        self.move_down()
+                    if self.fall_direction == 'Right':
+                        self.move_down()
+                        self.move_right()
+                    if self.fall_direction == 'Left':
+                        self.move_down()
+                        self.move_left()
+                    for plateforme in list_plateforme:
+                        if self.is_on_plateforme(plateforme):
+                            self.fall = False
+                            self.traverse_plateforme = False
+                    if self.rect.y == 535:
+                        self.fall = False
+                        self.traverse_plateforme = False
 
     def try_jump(self):  # essaie tout le temps le saut mais le fait ssi jump est true
         # si on a deja initialisé la hauteur initiale, on le refait pas
         if not self.set_initial_height:
-            if self.blocked_direction is None:
+            if True:  # self.blocked_direction is None:
                 self.initial_height = self.rect.y
             else:
-                self.initial_height = 535
+                pass
+            # self.initial_height = 535
             self.set_initial_height = True
         if self.jump:
             if self.rect.y > self.initial_height - 200 and not self.reach_top:  # s'il n'a pas atteint deja atteint le top et quil est en dessous du max, on fait monter
-                self.last_direction_up = 'Up'
                 if self.jump_direction is None:
                     self.move_up()
                 if self.jump_direction == 'Right':
@@ -119,7 +165,6 @@ class Player(pg.sprite.Sprite):
                 if self.blocked_direction == 'Up':
                     self.reach_top = True
             elif self.blocked_direction != 'Down':  # sinon, on faut descendre et on dit quil a deja atteint le top
-                self.last_direction_up = 'Down'
                 self.reach_top = True
                 if self.jump_direction is None:
                     self.move_down()
@@ -129,12 +174,11 @@ class Player(pg.sprite.Sprite):
                 if self.jump_direction == 'Left':
                     self.move_down()
                     self.move_left()
-                if not self.is_up():  # s'il est de nouveau a terre, jump devient false
-                    self.last_direction_up = 'Ground'
-                    self.jump = False
-            else:
+
+    def try_stop_jump(self, liste_plateforme):
+        if self.jump:
+            if not self.is_up(liste_plateforme):
                 self.jump = False
-                self.initial_height = self.rect.y
 
     def init_jump(self):
         self.reach_top = False

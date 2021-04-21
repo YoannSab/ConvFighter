@@ -45,8 +45,12 @@ class Projectile(pg.sprite.Sprite):
 
     def init_shoot(self, from_player):
         from_player.mana -= self.mana_cost
-        self.rect.x = from_player.rect.x
-        self.rect.y = from_player.rect.y+50
+        if from_player.last_direction == 'Right':
+            self.rect.x = from_player.rect.x+from_player.image.get_width()/2
+            self.rect.y = from_player.rect.y+from_player.image.get_height()/2-10
+        else:
+            self.rect.x = from_player.rect.x - from_player.image.get_width() / 2
+            self.rect.y = from_player.rect.y + from_player.image.get_height() / 2-10
         self.direction = from_player.last_direction
         if self.direction == 'Left':
             self.image = pg.transform.flip(self.image, True, False)

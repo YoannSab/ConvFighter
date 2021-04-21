@@ -21,7 +21,7 @@ class Game:
         self.nathan = Player('Nathan', 120, 1, 'assets/003-bandit.png','assets/nathan.png', 10, 6, self.proj2,100,10)
         self.pierre = Player('Pierre', 80, 1, 'assets/005-nymph butterfly.png','assets/pierre.png', 6, 40, self.proj2,100,10)
         self.list_player = [self.marc, self.yoann, self.tristan, self.arthur, self.nathan, self.pierre]
-        self.plat0 = Plateforme(0,400,230,350,20, 'assets/plateforme.png')
+        self.plat0 = Plateforme(0,400,300,350,20, 'assets/plateforme.png')
         self.plat1 = Plateforme(1, 200, 450, 250, 30, 'assets/plateforme2.png')
         self.plat2 = Plateforme(2, 700, 450, 250, 30, 'assets/plateforme2.png')
         self.list_plateformes = [self.plat0, self.plat1, self.plat2]
@@ -40,7 +40,7 @@ class Game:
         self.img_replay = pg.transform.scale(self.img_replay, (300, 80))
         self.img_replay_rect = self.img_replay.get_rect()
         self.img_replay_rect.x = 400
-        self.img_replay_rect.y = 600
+        self.img_replay_rect.y = 500
         self.game_over = False
         self.winner = None
         # regen du mana toutes les 1 secondes
@@ -175,11 +175,15 @@ class Game:
         # Verifier les touches pressées
         # P1
         self.P1.try_jump()
-        self.P1.try_block(self.P2)
+       #self.P1.try_block(self.P2)
+        self.P1.try_stop_jump(self.list_plateformes)
+        self.P1.try_fall(self.list_plateformes)
         if self.pressed.get(pg.K_d) and self.P1.rect.x < 1050 and self.P1.blocked_direction != 'Right':
             time.sleep(0.001)
             if self.P1.jump:
                 self.P1.jump_direction = 'Right'
+            elif self.P1.fall:
+                self.P1.fall_direction = 'Right'
             else:
                 self.P1.move_right()
 
@@ -187,22 +191,30 @@ class Game:
             time.sleep(0.001)
             if self.P1.jump:
                 self.P1.jump_direction = 'Left'
+            elif self.P1.fall:
+                self.P1.fall_direction = 'Left'
             else:
                 self.P1.move_left()
 
         # P2
         self.P2.try_jump()
-        self.P2.try_block(self.P1)
+        #self.P2.try_block(self.P1)
+        self.P2.try_stop_jump(self.list_plateformes)
+        self.P2.try_fall(self.list_plateformes)
         if self.pressed.get(pg.K_RIGHT) and self.P2.rect.x < 1050 and self.P2.blocked_direction != 'Right':
             time.sleep(0.001)
             if self.P2.jump:
                 self.P2.jump_direction = 'Right'
+            elif self.P2.fall:
+                self.P2.fall_direction = 'Right'
             else:
                 self.P2.move_right()
         if self.pressed.get(pg.K_LEFT) and self.P2.rect.x > -100 and self.P2.blocked_direction != 'Left':
             time.sleep(0.001)
             if self.P2.jump:
                 self.P2.jump_direction = 'Left'
+            elif self.P2.fall:
+                self.P2.fall_direction = 'Left'
             else:
                 self.P2.move_left()
 

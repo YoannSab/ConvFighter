@@ -51,6 +51,7 @@ while running:
                 game.timer.stop()
                 pg.quit()
             else:
+                #coup de poing
                 if event.key == pg.K_j:
                     if game.P1.mana > 0:
                         game.P1.punch(game.P2)
@@ -58,7 +59,7 @@ while running:
                 if event.key == pg.K_KP1:
                     if game.P2.mana > 0:
                         game.P2.punch(game.P1)
-
+                #tir de projectile
                 if event.key == pg.K_SPACE:
                     if game.P1.mana > game.P1.projectile.mana_cost:
                         game.create_proj(game.P1)
@@ -69,14 +70,23 @@ while running:
                     if game.P2.mana > game.P2.projectile.mana_cost:
                         game.create_proj(game.P2)
                         game.projs2[len(game.projs2) - 1].init_shoot(game.P2)
-
+                #saut
                 if event.key == pg.K_z:
-                    if not game.P1.is_up():
+                    if not game.P1.is_up(game.list_plateformes):
                         game.P1.init_jump()
-                if event.key == pg.K_UP:
-                    if not game.P2.is_up():
-                        game.P2.init_jump()
 
+                if event.key == pg.K_UP:
+                    if not game.P2.is_up(game.list_plateformes):
+                        game.P2.init_jump()
+                #tombe
+                if event.key == pg.K_s:
+                    game.P1.traverse_plateforme = True
+                    game.P1.fall_direction = None
+
+                if event.key == pg.K_DOWN:
+                    game.P2.traverse_plateforme = True
+                    game.P2.fall_direction = None
+                #heal
                 if event.key == pg.K_u:
                     if game.P1.mana > 0:
                         game.P1.get_healed()
