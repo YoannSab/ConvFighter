@@ -175,9 +175,9 @@ class Game:
         # Verifier les touches pressées
         # P1
         self.P1.try_jump()
-       #self.P1.try_block(self.P2)
-        self.P1.try_stop_jump(self.list_plateformes)
-        self.P1.try_fall(self.list_plateformes)
+        self.P1.try_block(self.P2,self.list_plateformes)
+        self.P1.try_stop_jump(self.list_plateformes, self.P2)
+        self.P1.try_fall(self.list_plateformes, self.P2)
         if self.pressed.get(pg.K_d) and self.P1.rect.x < 1050 and self.P1.blocked_direction != 'Right':
             time.sleep(0.001)
             if self.P1.jump:
@@ -198,9 +198,9 @@ class Game:
 
         # P2
         self.P2.try_jump()
-        #self.P2.try_block(self.P1)
-        self.P2.try_stop_jump(self.list_plateformes)
-        self.P2.try_fall(self.list_plateformes)
+        self.P2.try_block(self.P1, self.list_plateformes)
+        self.P2.try_stop_jump(self.list_plateformes, self.P1)
+        self.P2.try_fall(self.list_plateformes, self.P1)
         if self.pressed.get(pg.K_RIGHT) and self.P2.rect.x < 1050 and self.P2.blocked_direction != 'Right':
             time.sleep(0.001)
             if self.P2.jump:

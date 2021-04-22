@@ -62,13 +62,13 @@ class Player(pg.sprite.Sprite):
         self.last_direction_up = 'Down'
         self.rect.y += (self.velocity + 1)
 
-    def try_block(self, other_player):
-        if self.distance_cac(other_player):
-            pass
-            # if self.is_up():
-            #   self.blocked_direction = self.last_direction_up
-            # else:
-            #   self.blocked_direction = self.last_direction
+    def try_block(self, other_player, list_plat):
+        if (other_player.rect.x+20< self.rect.x + self.image.get_width()< other_player.rect.x+other_player.image.get_width()) and other_player.rect.y+other_player.image.get_height() +10 > self.rect.y+self.image.get_height()/2 > other_player.rect.y-10:
+            self.blocked_direction = 'Right'
+        elif other_player.rect.x <self.rect.x< other_player.rect.x + other_player.image.get_width()-20  and other_player.rect.y+other_player.image.get_height()+10 > self.rect.y+self.image.get_height()/2 > other_player.rect.y-10:
+            self.blocked_direction = 'Left'
+        elif self.rect.y == other_player.rect.y+other_player.image.get_height() and other_player.rect.x-10< self.rect.x+self.image.get_width()/2<other_player.rect.x+other_player.image.get_width()+10 and self.is_up(list_plat):
+            self.blocked_direction = self.last_direction_up
         else:
             self.blocked_direction = None
 
@@ -104,21 +104,23 @@ class Player(pg.sprite.Sprite):
         else:
             for plateforme in list_plateforme:
                 if self.is_on_plateforme(plateforme):
-                    print("reee")
                     res = False
                     break
                 else:
                     res = True
         return res
 
+    def is_on_player(self, other_player):
+        return (self.rect.y + self.image.get_width() == other_player.rect.y) and (other_player.rect.x < self.rect.x+self.image.get_width()/2 < other_player.rect.x + other_player.image.get_width()) and self.last_direction_up=='Down'
+
     def is_on_plateforme(self, plateforme):
-        if plateforme.rect.x-20 < self.rect.x < plateforme.rect.x + plateforme.image.get_width()-22 and (
+        if plateforme.rect.x - 20 < self.rect.x < plateforme.rect.x + plateforme.image.get_width() - 22 and (
                 self.rect.y + self.image.get_height() == plateforme.rect.y or self.rect.y + self.image.get_height() == plateforme.rect.y + 1) and self.last_direction_up == 'Down':
             return True
         else:
             return False
 
-    def try_fall(self, list_plateforme):
+    def try_fall(self, list_plateforme, other_player):
         if self.rect.y != 535:
             if not self.jump:
                 self.fall = True
@@ -126,19 +128,20 @@ class Player(pg.sprite.Sprite):
                     if self.is_on_plateforme(plateforme):
                         self.fall = False
                         break
+                if self.is_on_player(other_player):
+                    self.fall = False
                 if self.fall or self.traverse_plateforme:
-                    if self.fall_direction is None:
-                        self.move_down()
+                    self.move_down()
                     if self.fall_direction == 'Right':
-                        self.move_down()
                         self.move_right()
                     if self.fall_direction == 'Left':
-                        self.move_down()
                         self.move_left()
                     for plateforme in list_plateforme:
                         if self.is_on_plateforme(plateforme):
                             self.fall = False
                             self.traverse_plateforme = False
+                    if self.is_on_player(other_player):
+                        self.traverse_plateforme = False
                     if self.rect.y == 535:
                         self.fall = False
                         self.traverse_plateforme = False
@@ -154,30 +157,26 @@ class Player(pg.sprite.Sprite):
             self.set_initial_height = True
         if self.jump:
             if self.rect.y > self.initial_height - 200 and not self.reach_top:  # s'il n'a pas atteint deja atteint le top et quil est en dessous du max, on fait monter
-                if self.jump_direction is None:
-                    self.move_up()
-                if self.jump_direction == 'Right':
-                    self.move_up()
+                self.move_up()
+                if self.jump_direction == 'Right' and self.blocked_direction != 'Right':
                     self.move_right()
-                if self.jump_direction == 'Left':
-                    self.move_up()
+                if self.jump_direction == 'Left' and self.blocked_direction != 'Left':
                     self.move_left()
                 if self.blocked_direction == 'Up':
                     self.reach_top = True
-            elif self.blocked_direction != 'Down':  # sinon, on faut descendre et on dit quil a deja atteint le top
+            else:   # sinon, on faut descendre et on dit quil a deja atteint le top
                 self.reach_top = True
-                if self.jump_direction is None:
-                    self.move_down()
+                self.move_down()
                 if self.jump_direction == 'Right':
-                    self.move_down()
                     self.move_right()
                 if self.jump_direction == 'Left':
-                    self.move_down()
                     self.move_left()
 
-    def try_stop_jump(self, liste_plateforme):
+    def try_stop_jump(self, liste_plateforme, other_player):
         if self.jump:
             if not self.is_up(liste_plateforme):
+                self.jump = False
+            if self.is_on_player(other_player):
                 self.jump = False
 
     def init_jump(self):

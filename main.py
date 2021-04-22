@@ -80,12 +80,14 @@ while running:
                         game.P2.init_jump()
                 #tombe
                 if event.key == pg.K_s:
-                    game.P1.traverse_plateforme = True
-                    game.P1.fall_direction = None
+                    if not game.P1.is_on_player(game.P2):
+                        game.P1.traverse_plateforme = True
+                        game.P1.fall_direction = None
 
                 if event.key == pg.K_DOWN:
-                    game.P2.traverse_plateforme = True
-                    game.P2.fall_direction = None
+                    if not game.P2.is_on_player(game.P1):
+                        game.P2.traverse_plateforme = True
+                        game.P2.fall_direction = None
                 #heal
                 if event.key == pg.K_u:
                     if game.P1.mana > 0:
