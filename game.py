@@ -16,12 +16,12 @@ class Game:
         self.proj2 = Projectile('fleche', 10, 'assets/arrow.png', 30)
         self.proj3 = Projectile('boule de feu bleu', 11, 'assets/blue_fire_ball.png', 31)
         self.marc = Player('Marc', 150, 1, 'zoro', 'assets/marc.png', 10, 5, self.proj1, 100, 10)
-        self.yoann = Player('Yoann', 110, 1, 'ptit_fille', 'assets/yoann.png', 10, 2, self.proj1, 100, 10)
+        self.yoann = Player('Yoann', 110, 1, 'tanjiro', 'assets/yoann.png', 10, 2, self.proj1, 100, 10)
         self.tristan = Player('Tristan', 160, 1, 'sanji', 'assets/tristan.png', 18, 6, self.proj3,
                               100, 10)
         self.arthur = Player('Arthur', 100, 1, 'zenitsu', 'assets/arthur.png', 8, 6, self.proj1, 100, 10)
         self.nathan = Player('Nathan', 120, 1, 'nezuko', 'assets/nathan.png', 10, 6, self.proj3, 100, 10)
-        self.pierre = Player('Pierre', 80, 1, 'tanjiro', 'assets/pierre.png', 6, 40, self.proj3,
+        self.pierre = Player('Pierre', 80, 1, 'ptit_fille', 'assets/pierre.png', 6, 40, self.proj3,
                              100, 10)
         self.gabriel = Player('Gabriel', 130, 1, 'gabriel', 'assets/spla_gaby.png', 8, 4, self.proj1, 100,
                               10)
@@ -52,6 +52,7 @@ class Game:
         self.timer = My_Timer(1.0, self.mana_regen_in_game)
         self.cd_P1 = My_Timer(1, self.cd_ok_P1)
         self.cd_P2 = My_Timer(1, self.cd_ok_P2)
+        self.music_play = False
 
     def cd_ok_P1(self):
         if self.P1.cooldown:
@@ -90,6 +91,8 @@ class Game:
             self.P2.pos_start()
             self.is_playing = True
             self.timer.start()
+            pg.mixer.music.unload()
+            self.music_play = False
 
     def try_game_over(self):
         if self.is_playing:
@@ -103,6 +106,8 @@ class Game:
                     self.winner = self.P2
                 else:
                     self.winner = self.P1
+                pg.mixer.music.unload()
+                self.music_play =False
 
     def new_game(self):
         for player in self.list_player:
@@ -123,6 +128,11 @@ class Game:
         screen.blit(text_nom_winner, (200, 400))
 
     def choice_window(self, screen, police):
+        if not self.music_play:
+            pg.mixer.music.load('assets/ssbu.mp3')
+            pg.mixer.music.set_volume(0.3)
+            pg.mixer.music.play(0,0,0)
+            self.music_play = True
         self.marc.splashart_rect.x = 200
         self.marc.splashart_rect.y = 100
         screen.blit(self.marc.splashart, self.marc.splashart_rect)
@@ -166,6 +176,11 @@ class Game:
         screen.blit(text_nom_gabriel, (self.gabriel.splashart_rect.x + 30, self.gabriel.splashart_rect.y - 40))
 
     def window_update(self, screen):
+        if not self.music_play:
+            pg.mixer.music.load('assets/zelda.mp3')
+            pg.mixer.music.play(0,0,0)
+            pg.mixer.music.set_volume(0.3)
+            self.music_play = True
         # Appliquer image P1 et P2
         self.P1.animate( self.list_plateformes, self.P2)
         self.P2.animate( self.list_plateformes, self.P1,)
