@@ -1,8 +1,6 @@
 import pygame as pg
 from player import Player
 from projectile import Projectile
-import time
-from threading import Timer
 from timer import My_Timer
 from plateforme import Plateforme
 
@@ -53,6 +51,9 @@ class Game:
         self.cd_P1 = My_Timer(1, self.cd_ok_P1)
         self.cd_P2 = My_Timer(1, self.cd_ok_P2)
         self.music_play = False
+        self.select_sound = pg.mixer.Sound('assets/select.ogg')
+        self.choice_sound = pg.mixer.Sound('assets/choice.ogg')
+        self.choice_is_done = False
 
     def cd_ok_P1(self):
         if self.P1.cooldown:
@@ -85,6 +86,7 @@ class Game:
 
     def launch_game(self):
         if self.P1 is not None and self.P2 is not None:
+            self.choice_is_done = True
             self.P1.last_direction = 'Right'
             self.P1.pos_start()
             self.P2.last_direction = 'Left'
@@ -119,6 +121,7 @@ class Game:
         self.projs1 = []
         self.projs2 = []
         self.game_over = False
+        self.choice_is_done =False
 
     def end_window(self, screen):
         screen.blit(self.img_go, self.img_go_rect)

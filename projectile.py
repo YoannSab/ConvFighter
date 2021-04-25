@@ -5,6 +5,7 @@ import time
 class Projectile(pg.sprite.Sprite):
 
     def __init__(self, name, damage, image, mana_cost):
+        super(Projectile, self).__init__()
         self.name = name
         self.damage = damage
         self.image_string = image
