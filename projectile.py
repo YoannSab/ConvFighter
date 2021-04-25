@@ -14,6 +14,7 @@ class Projectile(pg.sprite.Sprite):
         self.mana_cost = mana_cost
         self.shot = False
         self.direction = None
+        self.shoot_initiated = False
 
     # test si un projectile entre dans un joueur
 
@@ -35,7 +36,7 @@ class Projectile(pg.sprite.Sprite):
         self.rect.x -= 2
 
     def coord_update(self):
-        if self.rect.x <= 100 or self.rect.x >= 1050:
+        if self.rect.x <= 0 or self.rect.x >= 1050:
             self.shot = False
         if self.shot:
             if self.direction == 'Right':
@@ -45,14 +46,14 @@ class Projectile(pg.sprite.Sprite):
 
     def init_shoot(self, from_player):
         from_player.mana -= self.mana_cost
-        if from_player.last_direction == 'Right':
-            self.rect.x = from_player.rect.x+from_player.image.get_width()/2
-            self.rect.y = from_player.rect.y+from_player.image.get_height()/2-10
-        else:
-            self.rect.x = from_player.rect.x - from_player.image.get_width() / 2
-            self.rect.y = from_player.rect.y + from_player.image.get_height() / 2-10
         self.direction = from_player.last_direction
-        if self.direction == 'Left':
+        if self.direction == 'Right':
+            self.rect.x = from_player.rect.x+from_player.current_image.get_width()/2-10
+            self.rect.y = from_player.rect.y+from_player.current_image.get_height()/2-20
+        else:
+            self.rect.x = from_player.rect.x - from_player.current_image.get_width() / 2-10
+            self.rect.y = from_player.rect.y + from_player.current_image.get_height() / 2-20
             self.image = pg.transform.flip(self.image, True, False)
-        self.shot = True
+        self.shoot_initiated = True
+
 

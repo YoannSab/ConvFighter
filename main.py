@@ -4,7 +4,7 @@ pg.init()
 from game import Game
 
 # Fenetre de jeu
-pg.display.set_caption("Cav' Fighter")
+pg.display.set_caption("Conv' Fighter")
 screen = pg.display.set_mode((1080, 720))
 
 # Background
@@ -53,30 +53,37 @@ while running:
             else:
                 #coup de poing
                 if event.key == pg.K_j:
-                    if game.P1.mana > 0:
+                    if not game.P1.cooldown:
                         game.P1.punch(game.P2)
+                        game.P1.cooldown = True
+                        game.cd_P1.start()
 
                 if event.key == pg.K_KP1:
-                    if game.P2.mana > 0:
+                    if not game.P2.cooldown:
                         game.P2.punch(game.P1)
+                        game.P2.cooldown = True
+                        game.cd_P2.start()
                 #tir de projectile
                 if event.key == pg.K_SPACE:
-                    if game.P1.mana > game.P1.projectile.mana_cost:
+                    if game.P1.mana > game.P1.projectile.mana_cost and not game.P1.is_shooting:
                         game.create_proj(game.P1)
-                        game.projs1[len(game.projs1) - 1].init_shoot(
-                            game.P1)  # on initialise le shoot du dernier élément
+                        game.projs1[len(game.projs1) - 1].shot = True
+                        game.P1.current_index = 0
+                        game.P1.is_shooting = True
 
                 if event.key == pg.K_KP0:
-                    if game.P2.mana > game.P2.projectile.mana_cost:
+                    if game.P2.mana > game.P2.projectile.mana_cost and not game.P2.is_shooting:
                         game.create_proj(game.P2)
-                        game.projs2[len(game.projs2) - 1].init_shoot(game.P2)
+                        game.projs2[len(game.projs2) - 1].shot = True
+                        game.P2.current_index = 0
+                        game.P2.is_shooting = True
                 #saut
                 if event.key == pg.K_z:
-                    if not game.P1.is_up(game.list_plateformes):
+                    if not game.P1.is_up(game.list_plateformes, game.P2):
                         game.P1.init_jump()
 
                 if event.key == pg.K_UP:
-                    if not game.P2.is_up(game.list_plateformes):
+                    if not game.P2.is_up(game.list_plateformes, game.P1):
                         game.P2.init_jump()
                 #tombe
                 if event.key == pg.K_s:
