@@ -70,7 +70,7 @@ class Player(pg.sprite.Sprite):
         else:
             if self.current_index >= len(self.images_run)-1:
                 self.current_index = 0
-            self.current_index += 0.02
+            self.current_index += 0.01
             self.current_image = self.images_run[int(self.current_index)]
 
         if self.last_direction == 'Left':

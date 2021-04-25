@@ -15,13 +15,13 @@ class Game:
         self.proj1 = Projectile('boule de feu', 10, 'assets/fire_ball.png', 30)
         self.proj2 = Projectile('fleche', 10, 'assets/arrow.png', 30)
         self.proj3 = Projectile('boule de feu bleu', 11, 'assets/blue_fire_ball.png', 31)
-        self.marc = Player('Marc', 150, 1, 'marc', 'assets/marc.png', 10, 5, self.proj1, 100, 10)
-        self.yoann = Player('Yoann', 110, 1, 'yoann', 'assets/yoann.png', 10, 2, self.proj2, 100, 10)
-        self.tristan = Player('Tristan', 160, 1, 'tristan', 'assets/tristan.png', 18, 6, self.proj3,
+        self.marc = Player('Marc', 150, 1, 'zoro', 'assets/marc.png', 10, 5, self.proj1, 100, 10)
+        self.yoann = Player('Yoann', 110, 1, 'ptit_fille', 'assets/yoann.png', 10, 2, self.proj1, 100, 10)
+        self.tristan = Player('Tristan', 160, 1, 'sanji', 'assets/tristan.png', 18, 6, self.proj3,
                               100, 10)
-        self.arthur = Player('Arthur', 100, 1, 'gabriel', 'assets/arthur.png', 8, 6, self.proj1, 100, 10)
-        self.nathan = Player('Nathan', 120, 1, 'nathan', 'assets/nathan.png', 10, 6, self.proj3, 100, 10)
-        self.pierre = Player('Pierre', 80, 1, 'nathan', 'assets/pierre.png', 6, 40, self.proj3,
+        self.arthur = Player('Arthur', 100, 1, 'zenitsu', 'assets/arthur.png', 8, 6, self.proj1, 100, 10)
+        self.nathan = Player('Nathan', 120, 1, 'nezuko', 'assets/nathan.png', 10, 6, self.proj3, 100, 10)
+        self.pierre = Player('Pierre', 80, 1, 'tanjiro', 'assets/pierre.png', 6, 40, self.proj3,
                              100, 10)
         self.gabriel = Player('Gabriel', 130, 1, 'gabriel', 'assets/spla_gaby.png', 8, 4, self.proj1, 100,
                               10)
