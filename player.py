@@ -17,6 +17,7 @@ class Player(pg.sprite.Sprite):
         self.mana_max = mana_max
         self.mana_regen = mana_regen
         self.projectile = projectile
+        self.sprite_name= sprite_name
         self.images_rest = self.load_animation(sprite_name, 'repos')
         self.images_run = self.load_animation(sprite_name, 'course')
         self.images_punch = self.load_animation(sprite_name, 'punch')

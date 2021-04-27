@@ -1,7 +1,7 @@
 import pygame as pg
+from game import Game
 
 pg.init()
-from game import Game
 
 # Fenetre de jeu
 pg.display.set_caption("Conv' Fighter")
@@ -9,22 +9,28 @@ screen = pg.display.set_mode((1080, 720))
 # Background
 background = pg.image.load('assets/game_bg3.jpg')
 background = pg.transform.scale(background, (1080, 720))
+option = pg.transform.scale(pg.image.load('assets/option.png'), (40, 40))
+option_rect = option.get_rect()
+option_rect.x = screen.get_width() - 70
+option_rect.y = 20
+
 # Charger Jeu
 game = Game()
 
 # Boucle pour maintenir affichage jeu
 running = True
-
 # Affichage de la fin
-police = pg.font.SysFont("Bradley Hand ITC", 30)  # Définition police et taille
+police = pg.font.SysFont("Arial", 30)  # Définition police et taille
 police.set_bold(True)
-player_courant = None
+
 while running:
     # Appliquer background
 
     screen.blit(background, (0, 0))
-
-    if game.is_playing:
+    screen.blit(option, option_rect)
+    if game.want_menu:
+        game.menu(screen)
+    elif game.is_playing:
         # maj de la fenetre
         game.window_update(screen)
     elif game.game_over:
@@ -32,6 +38,8 @@ while running:
     else:
         game.choice_window(screen, police)
     game.try_game_over()
+    # Mise à jour de la fenêtre
+    pg.display.flip()
 
     # Si le joueur ferme la fenetre
     for event in pg.event.get():
@@ -101,35 +109,55 @@ while running:
                     if game.P2.mana > 0:
                         game.P2.get_healed()
 
+                # choix des personnages
+                if (event.key == pg.K_d or event.key == pg.K_RIGHT) and not game.choice_is_done:
+                    if game.player_courant is None:
+                        game.player_courant = game.list_player[len(game.list_player) - 1]
+                    if not game.list_player.index(game.player_courant) == len(game.list_player) - 1:
+                        game.player_courant = game.list_player[game.list_player.index(game.player_courant) + 1]
+                    else:
+                        game.player_courant = game.list_player[0]
+                    game.select_sound.play()
+
+                if (event.key == pg.K_q or event.key == pg.K_LEFT) and not game.choice_is_done:
+                    if game.player_courant is None:
+                        game.player_courant = game.list_player[1]
+                    if not game.list_player.index(game.player_courant) == 0:
+                        game.player_courant = game.list_player[game.list_player.index(game.player_courant) - 1]
+                    else:
+                        game.player_courant = game.list_player[len(game.list_player) - 1]
+                    game.select_sound.play()
+
+                if (event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER) and not game.choice_is_done and game.player_courant is not None:
+                    if not game.player_courant == game.P1:
+                        game.choose_player(game.player_courant)
+                    game.click_sound.play()
                 game.pressed[event.key] = True
 
         elif event.type == pg.MOUSEBUTTONDOWN:
+            if not game.choice_is_done and not game.want_menu:
+                for player in game.list_player:
+                    if player.splashart_rect.collidepoint(event.pos):
+                        game.click_sound.play()
+                        if player != game.P1:
+                            game.choose_player(player)
+                        else:
+                            print("deja pris")
+                if game.play_button_rect.collidepoint(event.pos):
+                    game.click_sound.play()
+                    game.try_launch_game()
 
-            for player in game.list_player:
-                if player.splashart_rect.collidepoint(event.pos):
-                    game.choice_sound.play()
-                    if player != game.P1:
-                        screen.blit(pg.image.load('assets/dark_green.png'), player.splashart_rect)
-                        pg.time.wait(100)
-                        game.choose_player(player)
-                    else:
-                        print("deja pris")
-            if game.img_replay_rect.collidepoint(event.pos):
+            if game.img_replay_rect.collidepoint(event.pos) and game.game_over:
                 game.new_game()
+            if option_rect.collidepoint(event.pos):
+                game.click_sound.play()
+                game.want_menu = True
+            if game.want_menu:
+                for button in game.list_button:
+                    if button.rect.collidepoint(event.pos):
+                        button.function()
+                        game.click_sound.play()
 
         elif event.type == pg.KEYUP:
             game.pressed[event.key] = False
-    if not game.choice_is_done:
-        for player in game.list_player:
-            if player.splashart_rect.collidepoint(pg.mouse.get_pos()):
-                pg.mouse.set_cursor(pg.SYSTEM_CURSOR_HAND)
-                screen.blit(pg.image.load('assets/green.png'), player.splashart_rect)
-                if not player == player_courant:
-                    game.select_sound.play()
-                player_courant = player
-                break
-            else:
-                pg.mouse.set_cursor(pg.SYSTEM_CURSOR_ARROW)
 
-    # Mise à jour de la fenêtre
-    pg.display.flip()
