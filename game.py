@@ -170,7 +170,7 @@ class Game:
         self.projs2 = []
         self.game_over = False
 
-    def end_window(self, screen, background):
+    def end_window(self, screen):
         screen.blit(self.img_go, self.img_go_rect)
         screen.blit(self.img_replay, self.img_replay_rect)
         text_nom_winner = pg.font.SysFont("Calibri", 60).render("Le gagnant est " + self.winner.name + ", Bravo !",

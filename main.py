@@ -129,6 +129,8 @@ while running:
                     game.select_sound.play()
 
                 if (event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER) and not game.choice_is_done and game.player_courant is not None:
+                    if game.P1 is not None and game.P2 is not None:
+                        game.try_launch_game()
                     if not game.player_courant == game.P1:
                         game.choose_player(game.player_courant)
                     game.click_sound.play()
